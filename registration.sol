@@ -1,65 +1,85 @@
-pragma solidity =0.8.0;
-
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.4.22 <0.9.0;
 
 contract registration{
 
-    mapping(address=>bool) Farmer; 
-    mapping(address=>bool) Processor; 
-    mapping(address=>bool) Distributor;
-    mapping(address=>bool) Retailer; 
-    mapping(address=>bool) Consumer; 
+    address owner=0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
 
+    mapping(address=>string) Farmer; 
+    mapping(address=>string) Processor; 
+    mapping(address=>string) Distributor;
+    mapping(address=>string) Retailer; 
+    mapping(address=>string) Consumer; 
+    
+    modifier onlyOwner {
+       require(msg.sender == owner);
+       _;
+    }
 
-    function addFarmer(address a) public {
-        require(!Farmer[a],
+    function addFarmer(address a, string memory ipfshash) onlyOwner public {
+        require(bytes(Farmer[a]).length==0,
         "Farmer exists already"
         );
-        Farmer[a] = 1;
+        Farmer[a] = ipfshash;
     }
-    function addProcessor(address a) public {
-         require(!Processor[a],
+    function addProcessor(address a, string memory ipfshash) onlyOwner public {
+         require(bytes(Processor[a]).length==0,
         "processor exists already"
         );
-        Processor[a] = 1;
+        Processor[a] = ipfshash;
     }
-    function addDistributor(address a) public {
-         require(!Distributor[a],
+    function addDistributor(address a, string memory ipfshash) onlyOwner public {
+         require(bytes(Distributor[a]).length==0,
         "Distributor exists already"
         );
-        Distributor[a] = 1;
+        Distributor[a] = ipfshash;
     }
-    function addRetailer(address a) public {
-         require(!Retailer[a],
+    function addRetailer(address a, string memory ipfshash) onlyOwner public {
+         require(bytes(Retailer[a]).length==0,
         "Retailer exists already"
         );
-        Retailer[a] = 1;
+        Retailer[a] = ipfshash;
     }
-    function addConsumer(address a) public {
-         require(!Consumer[a],
+    function addConsumer(address a, string memory ipfshash) onlyOwner public {
+         require(bytes(Consumer[a]).length==0,
         "Consumer exists already"
         );
-        Consumer[a] = 1;
+        Consumer[a] = ipfshash;
     }
 
 
-    function farmerExists(address a) public returns(bool) {
-        return Farmer[a]
+    function farmerExists(address a) public view returns(string memory) {
+        if( !(bytes(Farmer[a]).length==0)){
+            return "Does not exists";
+        }
+        return "Farmer exists";
 
     }
-    function processorExists(address a) public returns(bool) {
-        return Processor[a]
+    function processorExists(address a) public view returns(string memory) {
+        if( !(bytes(Processor[a]).length==0)){
+            return "Does not exists";
+        }
+        return "Processor exists";
 
     }
-    function distributorExists(address a) public returns(bool) {
-        return Distributor[a]
+    function distributorExists(address a) public view returns(string memory) {
+        if( !(bytes(Distributor[a]).length==0)){
+            return "Does not exists";
+        }
+        return "Distributor exists";
+    }
+    function retailerExists(address a) public view returns(string memory) {
+        if( !(bytes(Retailer[a]).length==0)){
+            return "Does not exists";
+        }
+        return "Retailer exists";
 
     }
-    function retailerExists(address a) public returns(bool) {
-        return Retailer[a]
-
-    }
-    function consumerExists(address a) public returns(bool) {
-        return Consumer[a]
+    function consumerExists(address a) public view returns(string memory) {
+        if( !(bytes(Consumer[a]).length==0)){
+            return "Does not exists";
+        }
+        return "Consumer exists";
 
     }
 }
