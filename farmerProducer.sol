@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
-import "registration.sol";
-import "items.sol";
+import "./registration.sol";
+import "./items.sol";
 
 contract farmerprocessor is registration,items {
 
@@ -11,13 +11,14 @@ contract farmerprocessor is registration,items {
         address farmer;
         address processor;
         string shipStatus;
+        string payHash;
     }
 
     mapping(string=>tranc) transactions;
     
    
 
-    modifier onlyFarmer(string memory id) {
+    modifier verifyFarmer(string memory id) {
        require(msg.sender == transactions[id].farmer);
        _;
     }
@@ -30,46 +31,55 @@ contract farmerprocessor is registration,items {
        _;
     }
 
-    function shipingInitiated(string memory id) public onlyFarmer(id) {
-        transactions[id].shipStatus="shipping initiated";
-        
-    }
-    function shipingRecived(string memory id) public{
-        transactions[id].shipStatus="recived";
+    function payemntInitiated(string memory id, string memory ipfs) public verifyprocessor(id){
+        transactions[id].payHash=ipfs;
     }
 
-    function updateFarmer(string memory ipfs) public{
+    function payeRecived(string memory id, string memory ipfs) public verifyFarmer(id){
+        transactions[id].payHash=ipfs;
+    }
+
+
+    function shipingInitiated(string memory id, string memory ipfs) public verifyFarmer(id) {
+        transactions[id].shipStatus=ipfs;
+        
+    }
+    function shipingRecived(string memory id, string memory ipfs) public{
+        transactions[id].shipStatus=ipfs;
+    }
+
+    function updateFarmer(string memory ipfs) internal{
         Farmer[msg.sender]=ipfs;
     }
-    function updateprocessor(address a,string memory ipfs) public{
+    function updateprocessor(address a,string memory ipfs) internal{
         Farmer[a]=ipfs;
     }
 
 
-    function buyWheat(string memory ipfs, string memory id, address a) public onlyprocessor {
+    function buyItem(string memory ipfs, string memory id, address a) public onlyprocessor {
         transactions[id].processor=msg.sender;
         transactions[id].ipfs=ipfs ;
         transactions[id].farmer=a;
     }
-    function buyRice(string memory ipfs, string memory id, address a) public onlyprocessor {
-        transactions[id].processor=msg.sender;
-        transactions[id].ipfs=ipfs ;
-        transactions[id].farmer=a;
-    }
-    function confirmRice(string memory ipfs, string memory id,string memory ipfsP,string memory ipfsF,string[] memory ipfsR, string[] memory code) public onlyFarmer(id) {
-        uint arr_length=code.length;
-        for (uint i=0;i<arr_length; i++){
-            addRice(ipfsR[i], code[i]);
-        }
-        updateFarmer(ipfsF);
-        updateprocessor(transactions[id].processor, ipfsP);
-        transactions[id].ipfs=ipfs; 
+    // function buyRice(string memory ipfs, string memory id, address a) public onlyprocessor {
+    //     transactions[id].processor=msg.sender;
+    //     transactions[id].ipfs=ipfs ;
+    //     transactions[id].farmer=a;
+    // }
+    // function confirmRice(string memory ipfs, string memory id,string memory ipfsP,string memory ipfsF,string[] memory ipfsR, string[] memory code) public onlyFarmer(id) {
+    //     uint arr_length=code.length;
+    //     for (uint i=0;i<arr_length; i++){
+    //         addRice(ipfsR[i], code[i]);
+    //     }
+    //     updateFarmer(ipfsF);
+    //     updateprocessor(transactions[id].processor, ipfsP);
+    //     transactions[id].ipfs=ipfs; 
     
-    }
-    function confirmWheat(string memory ipfs, string memory id,string memory ipfsP,string memory ipfsF, string[] memory ipfsW, string[] memory code) public onlyFarmer(id) {
+    // }
+    function confirmItem(string memory ipfs, string memory id,string memory ipfsP,string memory ipfsF, string[] memory ipfsW, string[] memory code) public verifyFarmer(id) {
         uint arr_length=code.length;
         for (uint i=0;i<arr_length; i++){
-            addWheat(ipfsW[i], code[i]);
+            addItem(ipfsW[i], code[i]);
         }
         updateFarmer(ipfsF);
         updateprocessor(transactions[id].processor, ipfsP);
