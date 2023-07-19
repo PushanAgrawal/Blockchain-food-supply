@@ -44,7 +44,7 @@ contract farmerprocessor is registration,items {
         transactions[id].shipStatus=ipfs;
         
     }
-    function shipingRecived(string memory id, string memory ipfs) public{
+    function shipingRecived(string memory id, string memory ipfs) public verifyprocessor(id){
         transactions[id].shipStatus=ipfs;
     }
 
@@ -52,7 +52,7 @@ contract farmerprocessor is registration,items {
         Farmer[msg.sender]=ipfs;
     }
     function updateprocessor(address a,string memory ipfs) internal{
-        Farmer[a]=ipfs;
+        Processor[a]=ipfs;
     }
 
 
