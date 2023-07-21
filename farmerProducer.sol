@@ -3,8 +3,14 @@ pragma solidity >=0.4.22 <0.9.0;
 
 import "./registration.sol";
 import "./items.sol";
+import "./utils.sol";
 
 contract farmerprocessor is registration,items {
+
+
+    event PurchaseOrderPlaced(string indexed PurchaseOrderID,address Purchaser,address Seller,string ipfs);
+    event PurchaseOrderConfirmed(string PurchaseOrderID,status NEWSTatus);
+    event OrderReceived(string PurchaseOrderID);
 
     struct tranc {
         string ipfs;
@@ -13,6 +19,8 @@ contract farmerprocessor is registration,items {
         string shipStatus;
         string payHash;
     }
+
+    
 
     mapping(string=>tranc) transactions;
     
@@ -46,6 +54,7 @@ contract farmerprocessor is registration,items {
     }
     function shipingRecived(string memory id, string memory ipfs) public verifyprocessor(id){
         transactions[id].shipStatus=ipfs;
+        emit OrderReceived(id);
     }
 
     function updateFarmer(string memory ipfs) internal{
@@ -60,6 +69,7 @@ contract farmerprocessor is registration,items {
         transactions[id].processor=msg.sender;
         transactions[id].ipfs=ipfs ;
         transactions[id].farmer=a;
+        emit PurchaseOrderPlaced( id,msg.sender,a,ipfs);
     }
     // function buyRice(string memory ipfs, string memory id, address a) public onlyprocessor {
     //     transactions[id].processor=msg.sender;
@@ -73,16 +83,17 @@ contract farmerprocessor is registration,items {
     //     }
     //     updateFarmer(ipfsF);
     //     updateprocessor(transactions[id].processor, ipfsP);
-    //     transactions[id].ipfs=ipfs; 
+    //     transactions[id].ipfs= ipfs; 
     
     // }
-    function confirmItem(string memory ipfs, string memory id,string memory ipfsP,string memory ipfsF, string[] memory ipfsW, string[] memory code) public verifyFarmer(id) {
+    function confirmItem(string memory ipfs, string memory id,string memory ipfsP,string memory ipfsF, string[] memory ipfsW, string[] memory code, string memory itemType) public verifyFarmer(id) {
         uint arr_length=code.length;
         for (uint i=0;i<arr_length; i++){
-            addItem(ipfsW[i], code[i]);
+            addItem(ipfsW[i], code[i], itemType);
         }
         updateFarmer(ipfsF);
         updateprocessor(transactions[id].processor, ipfsP);
         transactions[id].ipfs=ipfs; 
+        emit PurchaseOrderConfirmed(id,status.Accepted);
     }
 }
