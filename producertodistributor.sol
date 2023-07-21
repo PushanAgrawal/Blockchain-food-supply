@@ -6,6 +6,12 @@ import "./utils.sol";
 
 contract processordistributor is registration, items, utils {
 
+
+    event PurchaseOrderPlaced(string indexed PurchaseOrderID,address Purchaser,address Seller,string ipfs);
+    event PurchaseOrderConfirmed(string PurchaseOrderID,status NEWSTatus);
+    event OrderReceived(string PurchaseOrderID);
+
+
     modifier verifyProcessor(string memory id) {
         require(msg.sender == transactions[id].sender);
         _;
@@ -28,6 +34,7 @@ contract processordistributor is registration, items, utils {
         transactions[id].reciver = msg.sender;
         transactions[id].ipfs = ipfs;
         transactions[id].sender = a;
+        emit PurchaseOrderPlaced( id,msg.sender,a,ipfs);
     }
 
     function confirmItem(
@@ -36,18 +43,20 @@ contract processordistributor is registration, items, utils {
         string memory ipfsP,
         string memory ipfsD,
         string[] memory ipfsI,
-        string[] memory code
+        string[] memory code,
+        string memory itemType
     )
         public
         verifyProcessor(id)
     {
         uint arr_length = code.length;
         for (uint i = 0; i < arr_length; i++) {
-            addItem(ipfsI[i], code[i]);
+            addItem(ipfsI[i], code[i], itemType);
         }
         updateDistributor(transactions[id].reciver, ipfsD);
         updateProcessor(ipfsP);
         transactions[id].ipfs = ipfs;
+        emit PurchaseOrderConfirmed(id,status.Accepted);
     }
 
     function updateDistributor(address a, string memory ipfs) internal {
@@ -64,6 +73,7 @@ contract processordistributor is registration, items, utils {
 
     function shippingReceived(string memory id, string memory ipfs) public verifyDistributor(id) {
         transactions[id].shipStatus = ipfs;
+        emit OrderReceived(id);
     }
 
     function paymentInitiated(string memory id, string memory ipfs) public verifyDistributor(id) {

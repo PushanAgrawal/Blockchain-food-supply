@@ -8,10 +8,11 @@ contract items {
     mapping(string=>string) item;
     
 
-
+    event updateitemDetails (string indexed code , address a, string itemType, string indexed ipfs);
     
-    function addItem(string memory ipfs, string memory code) public {
-        item[code]=ipfs;        
+    function addItem(string memory ipfs, string memory code, string memory itemType) public {
+        item[code]=ipfs;    
+        emit updateitemDetails(code, msg.sender, itemType, ipfs);    
     }
 
 }
