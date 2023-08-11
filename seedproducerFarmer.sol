@@ -1,8 +1,10 @@
+// SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
 import "./registration.sol";
-import "items.sol";
+
 import "./utils.sol";
+import "./items.sol";
 
 contract seeproducerfarmer is registration,items, utils {
 
@@ -22,13 +24,13 @@ contract seeproducerfarmer is registration,items, utils {
        _;
     }
     modifier onlyFarmer() {
-       require(bytes(Farmer[msg.sender]).length==0);
+       require(!(bytes(Farmer[msg.sender]).length==0));
        _;
     }
     
 
     function buyItem(string memory ipfs, string memory id, address a) public onlyFarmer {
-        if (!(bytes(SeedProducer[a]).length==0)){
+        if ((bytes(SeedProducer[a]).length==0)){
             revert("seedproducer dose not exists");
 
         }

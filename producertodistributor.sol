@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
 import "./registration.sol";
@@ -23,12 +24,12 @@ contract processordistributor is registration, items, utils {
     }
 
     modifier onlyDistributor() {
-        require(bytes(Distributor[msg.sender]).length == 0);
+        require(!(bytes(Distributor[msg.sender]).length == 0));
         _;
     }
 
     function buyItem(string memory ipfs, string memory id, address a) public onlyDistributor {
-        if (!(bytes(Processor[a]).length == 0)) {
+        if ((bytes(Processor[a]).length == 0)) {
             revert("Processor does not exist");
         }
         transactions[id].reciver = msg.sender;
