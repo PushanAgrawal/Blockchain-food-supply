@@ -17,38 +17,38 @@ contract registration{
     }
 
     function addSeedproducer(address a, string memory ipfshash) onlyOwner public {
-        require(bytes(SeedProducer[a]).length==0,
+        require(bytes(SeedProducer[a]).length!=0,
         "Farmer exists already"
         );
         SeedProducer[a] = ipfshash;
     }
 
     function addFarmer(address a, string memory ipfshash) onlyOwner public {
-        require(bytes(Farmer[a]).length==0,
+        require(bytes(Farmer[a]).length!=0,
         "Farmer exists already"
         );
         Farmer[a] = ipfshash;
     }
     function addProcessor(address a, string memory ipfshash) onlyOwner public {
-         require(bytes(Processor[a]).length==0,
+         require(bytes(Processor[a]).length!=0,
         "processor exists already"
         );
         Processor[a] = ipfshash;
     }
     function addDistributor(address a, string memory ipfshash) onlyOwner public {
-         require(bytes(Distributor[a]).length==0,
+         require(bytes(Distributor[a]).length!=0,
         "Distributor exists already"
         );
         Distributor[a] = ipfshash;
     }
     function addRetailer(address a, string memory ipfshash) onlyOwner public {
-         require(bytes(Retailer[a]).length==0,
+         require(bytes(Retailer[a]).length!=0,
         "Retailer exists already"
         );
         Retailer[a] = ipfshash;
     }
     function addConsumer(address a, string memory ipfshash) onlyOwner public {
-         require(bytes(Consumer[a]).length==0,
+         require(bytes(Consumer[a]).length!=0,
         "Consumer exists already"
         );
         Consumer[a] = ipfshash;

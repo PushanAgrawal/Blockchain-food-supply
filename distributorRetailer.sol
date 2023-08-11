@@ -21,12 +21,12 @@ contract distributoretailer is registration, items, utils {
     }
 
     modifier onlyRetailer() {
-        require(bytes(Retailer[msg.sender]).length == 0);
+        require(!(bytes(Retailer[msg.sender]).length == 0));
         _;
     }
 
     function buyItem(string memory ipfs, string memory id, address a) public onlyRetailer {
-        if (!(bytes(Distributor[a]).length == 0)) {
+        if ((bytes(Distributor[a]).length == 0)) {
             revert("Distributor does not exist");
         }
         transactions[id].reciver = msg.sender;

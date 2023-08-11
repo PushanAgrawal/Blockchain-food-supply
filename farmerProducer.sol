@@ -5,95 +5,75 @@ import "./registration.sol";
 import "./items.sol";
 import "./utils.sol";
 
-contract farmerprocessor is registration,items {
-
-
-    event PurchaseOrderPlaced(string indexed PurchaseOrderID,address Purchaser,address Seller,string ipfs);
-    event PurchaseOrderConfirmed(string PurchaseOrderID,status NEWSTatus);
-    event OrderReceived(string PurchaseOrderID);
-
-    struct tranc {
-        string ipfs;
-        address farmer;
-        address processor;
-        string shipStatus;
-        string payHash;
-    }
-
-    
-
-    mapping(string=>tranc) transactions;
-    
-   
+contract farmerprocessor is registration, items, utils {
 
     modifier verifyFarmer(string memory id) {
-       require(msg.sender == transactions[id].farmer);
-       _;
-    }
-    modifier verifyprocessor(string memory id) {
-       require(msg.sender == transactions[id].processor);
-       _;
-    }
-    modifier onlyprocessor() {
-       require(bytes(Processor[msg.sender]).length==0);
-       _;
+        require(msg.sender == transactions[id].sender);
+        _;
     }
 
-    function payemntInitiated(string memory id, string memory ipfs) public verifyprocessor(id){
-        transactions[id].payHash=ipfs;
+    modifier verifyProcessor(string memory id) {
+        require(msg.sender == transactions[id].reciver);
+        _;
     }
 
-    function payeRecived(string memory id, string memory ipfs) public verifyFarmer(id){
-        transactions[id].payHash=ipfs;
+    modifier onlyProcessor() {
+        require(!(bytes(Processor[msg.sender]).length == 0));
+        _;
     }
 
-
-    function shipingInitiated(string memory id, string memory ipfs) public verifyFarmer(id) {
-        transactions[id].shipStatus=ipfs;
-        
-    }
-    function shipingRecived(string memory id, string memory ipfs) public verifyprocessor(id){
-        transactions[id].shipStatus=ipfs;
-        emit OrderReceived(id);
-    }
-
-    function updateFarmer(string memory ipfs) internal{
-        Farmer[msg.sender]=ipfs;
-    }
-    function updateprocessor(address a,string memory ipfs) internal{
-        Processor[a]=ipfs;
-    }
-
-
-    function buyItem(string memory ipfs, string memory id, address a) public onlyprocessor {
-        transactions[id].processor=msg.sender;
-        transactions[id].ipfs=ipfs ;
-        transactions[id].farmer=a;
-        emit PurchaseOrderPlaced( id,msg.sender,a,ipfs);
-    }
-    // function buyRice(string memory ipfs, string memory id, address a) public onlyprocessor {
-    //     transactions[id].processor=msg.sender;
-    //     transactions[id].ipfs=ipfs ;
-    //     transactions[id].farmer=a;
-    // }
-    // function confirmRice(string memory ipfs, string memory id,string memory ipfsP,string memory ipfsF,string[] memory ipfsR, string[] memory code) public onlyFarmer(id) {
-    //     uint arr_length=code.length;
-    //     for (uint i=0;i<arr_length; i++){
-    //         addRice(ipfsR[i], code[i]);
-    //     }
-    //     updateFarmer(ipfsF);
-    //     updateprocessor(transactions[id].processor, ipfsP);
-    //     transactions[id].ipfs= ipfs; 
-    
-    // }
-    function confirmItem(string memory ipfs, string memory id,string memory ipfsP,string memory ipfsF, string[] memory ipfsW, string[] memory code, string memory itemType) public verifyFarmer(id) {
-        uint arr_length=code.length;
-        for (uint i=0;i<arr_length; i++){
-            addItem(ipfsW[i], code[i], itemType);
+    function buyItem(string memory ipfs, string memory id, address a) public onlyProcessor {
+        if ((bytes(Farmer[a]).length == 0)) {
+            revert("Farmer does not exist");
         }
-        updateFarmer(ipfsF);
-        updateprocessor(transactions[id].processor, ipfsP);
-        transactions[id].ipfs=ipfs; 
-        emit PurchaseOrderConfirmed(id,status.Accepted);
+        transactions[id].reciver = msg.sender;
+        transactions[id].ipfs = ipfs;
+        transactions[id].sender = a;
     }
+
+    function confirmItem(
+        string memory ipfs,
+        string memory id,
+        string memory ipfsF,
+        string memory ipfsP,
+        string[] memory ipfsI,
+        string[] memory code,
+        string memory itemType
+    )
+        public
+        verifyFarmer(id)
+    {
+        uint arr_length = code.length;
+        for (uint i = 0; i < arr_length; i++) {
+            addItem(ipfsI[i], code[i],itemType);
+        }
+        updateProcessor(transactions[id].reciver, ipfsP);
+        updateFarmer(ipfsF);
+        transactions[id].ipfs = ipfs;
+    }
+
+    function updateProcessor(address a, string memory ipfs) internal {
+        Processor[a] = ipfs;
+    }
+
+    function updateFarmer(string memory ipfs) internal {
+        Farmer[msg.sender] = ipfs;
+    }
+
+    function shippingInitiated(string memory id, string memory ipfs) public verifyFarmer(id) {
+        transactions[id].shipStatus = ipfs;
+    }
+
+    function shippingReceived(string memory id, string memory ipfs) public verifyProcessor(id) {
+        transactions[id].shipStatus = ipfs;
+    }
+
+    function paymentInitiated(string memory id, string memory ipfs) public verifyProcessor(id) {
+        transactions[id].payHash = ipfs;
+    }
+
+    function paymentReceived(string memory id, string memory ipfs) public verifyFarmer(id) {
+        transactions[id].payHash = ipfs;
+    }
+
 }
